@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Personal OS | Dashboard</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* --- PERBAIKAN TOTAL LAYOUT --- */
+      body.dashboard-page {
+        background: #f8fafc;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* AREA JAM & STATISTIK (FIXED) */
+      .sticky-header {
+        flex-shrink: 0;
+        background: rgba(248, 250, 252, 0.85);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        padding: 30px 20px 20px;
+        text-align: center;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      #digital-clock {
+        font-size: 4.5rem; /* Sedikit disesuaikan ukurannya */
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -3px;
+        line-height: 1;
+      }
+
+      #current-date {
+        font-size: 1.1rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-top: 5px;
+      }
+
+      /* BANNER STATISTIK MODERN */
+      .stat-banner {
+        display: flex;
+        justify-content: space-around;
+        background: white;
+        margin-top: 20px;
+        padding: 15px 10px;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      }
+      .stat-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .stat-val {
+        font-weight: 800;
+        font-size: 1rem;
+        color: #6366f1;
+      }
+      .stat-label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+      .divider {
+        width: 1px;
+        background: #f1f5f9;
+        margin: 5px 0;
+      }
+
+      /* AREA KONTEN (SCROLLABLE) */
+      .scrollable-content {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .dashboard-wrapper {
+        max-width: 480px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .quote-card {
+        padding: 22px;
+        border-radius: 28px;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        text-align: center;
+      }
+
+      .quote-text {
+        font-size: 0.95rem;
+        color: #334155;
+        line-height: 1.5;
+        font-style: italic;
+        margin-bottom: 8px;
+      }
+
+      .quote-author {
+        font-size: 0.75rem;
+        color: #6366f1;
+        font-weight: 700;
+      }
+
+      .menu-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding-bottom: 30px;
+      }
+
+      .menu-item {
+        padding: 22px 15px;
+        text-decoration: none;
+        background: white;
+        border-radius: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        transition: transform 0.2s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+      }
+
+      .menu-item i {
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .menu-item span {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #1e293b;
+      }
+
+      .menu-item:active {
+        transform: scale(0.95);
+      }
+
+      .bg-blur-circle-1,
+      .bg-blur-circle-2 {
+        position: fixed;
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body class="dashboard-page">
+    <div class="bg-blur-circle-1"></div>
+    <div class="bg-blur-circle-2"></div>
+
+    <header class="sticky-header">
+      <div id="digital-clock">00:00</div>
+      <div id="current-date">Memuat Tanggal...</div>
+
+      <div class="stat-banner">
+        <div class="stat-item">
+          <span class="stat-val" id="stat-todo">0%</span>
+          <span class="stat-label">Tugas</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item">
+          <span class="stat-val" id="stat-money">Rp 0</span>
+          <span class="stat-label">Saldo</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat-item">
+          <span class="stat-val" id="stat-schedule">0</span>
+          <span class="stat-label">Kuliah</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="scrollable-content">
+      <div class="dashboard-wrapper">
+        <div class="quote-card">
+          <p class="quote-text" id="quote-text">
+            "Lakukan hari ini, atau sesali besok."
+          </p>
+          <p class="quote-author" id="quote-author">— Personal OS</p>
+        </div>
+
+        <div class="menu-grid">
+          <a href="pages/todo.html" class="menu-item">
+            <i class="fas fa-tasks"></i>
+            <span>To-Do List</span>
+          </a>
+          <a href="pages/diary.html" class="menu-item">
+            <i class="fas fa-book"></i>
+            <span>Diary</span>
+          </a>
+          <a href="pages/money.html" class="menu-item">
+            <i class="fas fa-wallet"></i>
+            <span>Keuangan</span>
+          </a>
+          <a href="pages/jadwal.html" class="menu-item">
+            <i class="fas fa-university"></i>
+            <span>Jadwal</span>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <audio
+      id="alarm-sound"
+      src="assets/audio/notif_suara.mp3"
+      preload="auto"
+    ></audio>
+
+    <script>
+      // --- 1. LOGIKA JAM & TANGGAL ---
+      function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, "0");
+        const m = String(now.getMinutes()).padStart(2, "0");
+        document.getElementById("digital-clock").textContent = `${h}:${m}`;
+
+        const opt = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        };
+        document.getElementById("current-date").textContent =
+          now.toLocaleDateString("id-ID", opt);
+      }
+
+      // --- 2. LOGIKA STATISTIK OTOMATIS ---
+      function updateStats() {
+        // Statistik To-Do
+        const todos = JSON.parse(localStorage.getItem("todos")) || [];
+        const total = todos.length;
+        const done = todos.filter((t) => t.completed).length;
+        const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+        document.getElementById("stat-todo").innerText = percent + "%";
+
+        // Statistik Uang
+        const transactions =
+          JSON.parse(localStorage.getItem("transactions")) || [];
+        let balance = 0;
+        transactions.forEach((t) => {
+          if (t.type === "income") balance += t.amount;
+          else balance -= t.amount;
+        });
+        // Short format (k = ribu, jt = juta)
+        let formattedBalance =
+          balance >= 1000000
+            ? (balance / 1000000).toFixed(1) + "jt"
+            : balance >= 1000
+            ? (balance / 1000).toFixed(0) + "k"
+            : balance;
+        document.getElementById("stat-money").innerText =
+          "Rp " + formattedBalance;
+
+        // Statistik Kuliah Hari Ini
+        const schedules = JSON.parse(localStorage.getItem("schedules")) || [];
+        const hariIndo = [
+          "Minggu",
+          "Senin",
+          "Selasa",
+          "Rabu",
+          "Kamis",
+          "Jumat",
+          "Sabtu",
+        ];
+        const today = hariIndo[new Date().getDay()];
+        const todayClass = schedules.filter((s) => s.day === today).length;
+        document.getElementById("stat-schedule").innerText = todayClass;
+      }
+
+      // --- 3. LOGIKA QUOTES ---
+      const quotes = [
+        {
+          text: "Jangan berhenti ketika lelah. Berhentilah ketika selesai.",
+          author: "Anonim",
+        },
+        {
+          text: "Masa depan adalah milik mereka yang percaya pada mimpi.",
+          author: "Eleanor Roosevelt",
+        },
+        {
+          text: "Pendidikan adalah senjata paling mematikan.",
+          author: "Nelson Mandela",
+        },
+      ];
+
+      function setRandomQuote() {
+        const random = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById("quote-text").textContent = `"${random.text}"`;
+        document.getElementById(
+          "quote-author"
+        ).textContent = `— ${random.author}`;
+      }
+
+      // --- 4. ALARM CHECKER ---
+      function checkDeadlinesHome() {
+        const todos = JSON.parse(localStorage.getItem("todos")) || [];
+        const now = new Date().getTime();
+        let updated = false;
+
+        todos.forEach((todo) => {
+          if (!todo.completed && todo.deadline && !todo.alarmPlayed) {
+            if (now >= new Date(todo.deadline).getTime()) {
+              const sound = document.getElementById("alarm-sound");
+              if (sound) sound.play().catch(() => {});
+              alert("🔔 DEADLINE: " + todo.task);
+              todo.alarmPlayed = true;
+              updated = true;
+            }
+          }
+        });
+        if (updated) {
+          localStorage.setItem("todos", JSON.stringify(todos));
+          updateStats(); // Update persen saat ada yang selesai lewat alert
+        }
+      }
+
+      // Inisialisasi
+      setInterval(updateClock, 1000);
+      setInterval(checkDeadlinesHome, 10000);
+      updateClock();
+      updateStats();
+      setRandomQuote();
+    </script>
+  </body>
+</html>

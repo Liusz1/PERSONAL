@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Personal OS | Keuangan</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .balance-card {
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+        padding: 30px 20px;
+        border-radius: 28px;
+        text-align: center;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+      }
+      .balance-card h3 {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        font-weight: 400;
+      }
+      .balance-card #total-balance {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 10px 0;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+      .stat-item {
+        background: white;
+        padding: 15px;
+        border-radius: 20px;
+        text-align: center;
+      }
+      .stat-item span {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+      .stat-item strong {
+        font-size: 1rem;
+      }
+      .income {
+        color: #10b981;
+      }
+      .expense {
+        color: #ef4444;
+      }
+
+      .transaction-item {
+        background: white;
+        padding: 15px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .trans-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body class="money-page">
+    <div class="bg-blur-circle-1"></div>
+
+    <header class="header-nav">
+      <a href="../index.html" class="back-btn"
+        ><i class="fas fa-arrow-left"></i
+      ></a>
+      <h2>Keuangan</h2>
+    </header>
+
+    <div class="wrapper">
+      <div class="balance-card">
+        <h3>Sisa Saldo Kamu</h3>
+        <div id="total-balance">Rp 0</div>
+        <p id="today-date" style="font-size: 0.8rem; opacity: 0.8"></p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span>Pemasukan</span>
+          <strong class="income" id="total-income">+ Rp 0</strong>
+        </div>
+        <div class="stat-item">
+          <span>Pengeluaran</span>
+          <strong class="expense" id="total-expense">- Rp 0</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 25px">
+        <button
+          onclick="openMoneyModal('income')"
+          class="glass-card"
+          style="flex: 1; border: none; cursor: pointer; background: #ecfdf5"
+        >
+          <i class="fas fa-plus-circle" style="color: #10b981"></i>
+          <span style="color: #10b981">Masuk</span>
+        </button>
+        <button
+          onclick="openMoneyModal('expense')"
+          class="glass-card"
+          style="flex: 1; border: none; cursor: pointer; background: #fef2f2"
+        >
+          <i class="fas fa-minus-circle" style="color: #ef4444"></i>
+          <span style="color: #ef4444">Keluar</span>
+        </button>
+      </div>
+
+      <h4 class="section-title">Riwayat Transaksi</h4>
+      <div id="transaction-list"></div>
+    </div>
+
+    <div id="money-modal" class="modal">
+      <div class="modal-content glass-card">
+        <h3 id="modal-title">Tambah Catatan</h3>
+        <input
+          type="number"
+          id="amount-input"
+          placeholder="Jumlah (Rp)"
+          style="
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 1.2rem;
+          "
+        />
+        <input
+          type="text"
+          id="desc-input"
+          placeholder="Keterangan (misal: Makan Siang)"
+          style="
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+          "
+        />
+        <div style="display: flex; gap: 10px">
+          <button
+            onclick="closeMoneyModal()"
+            class="cancel-btn"
+            style="flex: 1"
+          >
+            Batal
+          </button>
+          <button id="save-money-btn" class="save-btn" style="flex: 1">
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/money.js"></script>
+  </body>
+</html>
