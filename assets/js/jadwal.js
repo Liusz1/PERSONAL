@@ -1,7 +1,6 @@
 let schedules = JSON.parse(localStorage.getItem("schedules")) || [];
-let activeDay = "";
 
-// Ambil hari ini dalam bahasa Indonesia
+// 1. Ambil Hari Ini dalam Bahasa Indonesia
 const hariIndo = [
   "Minggu",
   "Senin",
@@ -11,7 +10,9 @@ const hariIndo = [
   "Jumat",
   "Sabtu",
 ];
-const today = hariIndo[new Date().getDay()];
+const now = new Date();
+const today = hariIndo[now.getDay()];
+let activeDay = "";
 
 function filterDay(day) {
   activeDay = day;
@@ -41,7 +42,6 @@ document.getElementById("save-schedule-btn").onclick = () => {
   schedules.push({ id: Date.now(), name, start, end, room, day });
   localStorage.setItem("schedules", JSON.stringify(schedules));
 
-  // Reset input
   document.getElementById("subject-name").value = "";
   document.getElementById("room-name").value = "";
 
@@ -61,34 +61,48 @@ function renderSchedules() {
     list.innerHTML = `
             <div style="text-align:center; padding: 50px 20px;">
                 <i class="fas fa-mug-hot" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 15px;"></i>
-                <p style="color:#94a3b8; font-weight:600;">Tidak ada jadwal di hari ${activeDay}</p>
+                <p style="color:#94a3b8; font-weight:600;">Santai dulu, hari ${activeDay} gak ada jadwal.</p>
             </div>`;
     return;
   }
 
-  const now = new Date();
-  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-    now.getMinutes()
+  // Ambil Waktu Sekarang (Format HH:mm)
+  const timeNow = new Date();
+  const currentTime = `${String(timeNow.getHours()).padStart(2, "0")}:${String(
+    timeNow.getMinutes()
   ).padStart(2, "0")}`;
 
   filtered.forEach((s) => {
-    // Cek apakah sedang berlangsung sekarang
+    // LOGIKA LIVE: Cek apakah hari ini cocok DAN waktu sekarang masuk range jadwal
     const isNow =
       today === activeDay && currentTime >= s.start && currentTime <= s.end;
 
     const card = document.createElement("div");
     card.className = `schedule-card ${isNow ? "now" : ""}`;
+
+    // Tambahkan Badge "LIVE" kalau sedang berlangsung
+    const liveBadge = isNow
+      ? `<span style="background:#6366f1; color:#fff; font-size:0.6rem; padding:2px 8px; border-radius:10px; margin-left:8px; animation: pulse 1.5s infinite;">LIVE</span>`
+      : "";
+
     card.innerHTML = `
             <div class="time-box">
-                <strong>${s.start}</strong>
+                <strong style="${isNow ? "color:#6366f1" : ""}">${
+      s.start
+    }</strong>
                 <span>s/d</span>
-                <strong>${s.end}</strong>
+                <strong style="${isNow ? "color:#6366f1" : ""}">${
+      s.end
+    }</strong>
             </div>
             <div class="subject-info">
-                <h4>${s.name}</h4>
-                <p><i class="fas fa-location-arrow" style="font-size: 0.7rem;"></i> ${
-                  s.room || "Tanpa Ruangan"
-                }</p>
+                <h4>${s.name} ${liveBadge}</h4>
+                <p>
+                    <i class="fas fa-location-dot" style="font-size: 0.7rem; color: ${
+                      isNow ? "#6366f1" : "#94a3b8"
+                    }"></i> 
+                    ${s.room || "Tanpa Ruangan"}
+                </p>
             </div>
             <button onclick="deleteSchedule(${
               s.id
@@ -108,5 +122,10 @@ window.deleteSchedule = (id) => {
   }
 };
 
-// Jalankan otomatis
+// 2. Jalankan Otomatis Hari Ini (Jika Minggu, arahkan ke Senin)
 filterDay(today === "Minggu" ? "Senin" : today);
+
+// 3. Auto Refresh setiap 1 menit biar status "LIVE" berubah sendiri
+setInterval(() => {
+  renderSchedules();
+}, 60000);
