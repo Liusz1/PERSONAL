@@ -1,7 +1,6 @@
 let schedules = JSON.parse(localStorage.getItem("schedules")) || [];
 let editId = null;
 
-// 1. Pengaturan Waktu & Hari
 const hariIndo = [
   "Minggu",
   "Senin",
@@ -13,19 +12,20 @@ const hariIndo = [
 ];
 const now = new Date();
 const today = hariIndo[now.getDay()];
-let activeDay = "";
+// Inisialisasi activeDay dengan hari ini (atau Senin jika ini hari Minggu)
+let activeDay = today === "Minggu" ? "Senin" : today;
 
-// 2. Fungsi Filter Hari
-function filterDay(day) {
+// --- PERBAIKAN: Ekspos fungsi ke Window agar bisa dipanggil dari HTML ---
+
+window.filterDay = function (day) {
   activeDay = day;
   document.querySelectorAll(".day-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.innerText === day);
   });
   renderSchedules();
-}
+};
 
-// 3. Logika Modal (Tambah & Edit)
-function openModal(isEdit = false, id = null) {
+window.openModal = function (isEdit = false, id = null) {
   const modal = document.getElementById("schedule-modal");
   const btnSave = document.getElementById("save-schedule-btn");
   const title = modal.querySelector("h2");
@@ -33,31 +33,32 @@ function openModal(isEdit = false, id = null) {
   if (isEdit && id) {
     editId = id;
     const data = schedules.find((s) => s.id === id);
-    // Isi form dengan data yang sudah ada
-    document.getElementById("subject-name").value = data.name;
-    document.getElementById("start-time").value = data.start;
-    document.getElementById("end-time").value = data.end;
-    document.getElementById("room-name").value = data.room;
-    document.getElementById("day-select").value = data.day;
-
-    btnSave.innerText = "UPDATE JADWAL";
-    if (title) title.innerText = "Edit Agenda";
+    if (data) {
+      document.getElementById("subject-name").value = data.name;
+      document.getElementById("start-time").value = data.start;
+      document.getElementById("end-time").value = data.end;
+      document.getElementById("room-name").value = data.room;
+      document.getElementById("day-select").value = data.day;
+      btnSave.innerText = "UPDATE JADWAL";
+      if (title) title.innerText = "Edit Agenda";
+    }
   } else {
     editId = null;
-    document.getElementById("schedule-form").reset();
+    const form = document.getElementById("schedule-form");
+    if (form) form.reset();
     document.getElementById("day-select").value = activeDay;
     btnSave.innerText = "TAMBAH JADWAL";
     if (title) title.innerText = "Tambah Agenda Baru";
   }
   modal.style.display = "flex";
-}
+};
 
-function closeModal() {
+window.closeModal = function () {
   document.getElementById("schedule-modal").style.display = "none";
   editId = null;
-}
+};
 
-// 4. Logika Simpan & Update
+// --- Logika Simpan ---
 document.getElementById("save-schedule-btn").onclick = () => {
   const name = document.getElementById("subject-name").value;
   const start = document.getElementById("start-time").value;
@@ -69,19 +70,22 @@ document.getElementById("save-schedule-btn").onclick = () => {
 
   if (editId) {
     const index = schedules.findIndex((s) => s.id === editId);
-    schedules[index] = { ...schedules[index], name, start, end, room, day };
+    if (index !== -1) {
+      schedules[index] = { ...schedules[index], name, start, end, room, day };
+    }
   } else {
     schedules.push({ id: Date.now(), name, start, end, room, day });
   }
 
   localStorage.setItem("schedules", JSON.stringify(schedules));
-  closeModal();
-  filterDay(day);
+  window.closeModal();
+  window.filterDay(day);
 };
 
-// 5. Render Tampilan (Fitur Utama: Tombol Aksi & Teks Responsive)
+// --- Render Tampilan ---
 function renderSchedules() {
   const list = document.getElementById("schedule-list");
+  if (!list) return;
   list.innerHTML = "";
 
   const filtered = schedules
@@ -107,15 +111,12 @@ function renderSchedules() {
       today === activeDay && currentTime >= s.start && currentTime <= s.end;
     const card = document.createElement("div");
     card.className = `schedule-card ${isNow ? "now" : ""}`;
+    card.style =
+      "display: flex; align-items: center; padding: 15px; gap: 12px; margin-bottom: 12px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);";
 
-    // Styling Inline untuk memastikan layout tidak hancur saat teks panjang
-    card.style.display = "flex";
-    card.style.alignItems = "center";
-    card.style.padding = "15px";
-    card.style.gap = "12px";
-    card.style.marginBottom = "12px";
-
-    const liveBadge = isNow ? `<span class="live-badge">LIVE</span>` : "";
+    const liveBadge = isNow
+      ? `<span class="live-badge" style="background: #6366f1; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; margin-left: 5px;">LIVE</span>`
+      : "";
 
     card.innerHTML = `
             <div class="time-box" style="flex-shrink: 0; min-width: 65px; text-align: center;">
@@ -127,36 +128,32 @@ function renderSchedules() {
       s.end
     }</strong>
             </div>
-            
-            <div class="subject-info" style="flex-grow: 1; min-width: 0; overflow: hidden;">
-                <h4 style="margin: 0; font-size: 1rem; color: #1e293b; word-wrap: break-word; white-space: normal;">
-                    ${s.name} ${liveBadge}
-                </h4>
+            <div class="subject-info" style="flex-grow: 1; min-width: 0;">
+                <h4 style="margin: 0; font-size: 1rem; color: #1e293b; word-wrap: break-word;">${
+                  s.name
+                } ${liveBadge}</h4>
                 <p style="margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8;">
-                    <i class="fas fa-location-dot" style="font-size: 0.7rem;"></i> ${
+                    <i class="fas fa-location-dot"></i> ${
                       s.room || "Tanpa Lokasi"
                     }
                 </p>
             </div>
-
-            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 8px;">
                 <button onclick="openModal(true, ${
                   s.id
-                })" style="border:none; background:#f1f5f9; color:#6366f1; border-radius: 8px; width: 35px; height: 35px; cursor:pointer;">
+                })" style="border:none; background:#f1f5f9; color:#6366f1; border-radius: 8px; width: 32px; height: 32px; cursor:pointer;">
                     <i class="fas fa-pen-to-square"></i>
                 </button>
                 <button onclick="deleteSchedule(${
                   s.id
-                })" style="border:none; background:#fff1f2; color:#ef4444; border-radius: 8px; width: 35px; height: 35px; cursor:pointer;">
+                })" style="border:none; background:#fff1f2; color:#ef4444; border-radius: 8px; width: 32px; height: 32px; cursor:pointer;">
                     <i class="fas fa-trash-can"></i>
                 </button>
-            </div>
-        `;
+            </div>`;
     list.appendChild(card);
   });
 }
 
-// 6. Fungsi Hapus
 window.deleteSchedule = (id) => {
   if (confirm("Hapus jadwal ini?")) {
     schedules = schedules.filter((s) => s.id !== id);
@@ -165,8 +162,6 @@ window.deleteSchedule = (id) => {
   }
 };
 
-// 7. Inisialisasi
-filterDay(today === "Minggu" ? "Senin" : today);
-
-// Auto Refresh status LIVE setiap menit
+// Inisialisasi awal
+window.filterDay(activeDay);
 setInterval(renderSchedules, 60000);
